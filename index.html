@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#16213e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="信途网约车">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMWExYTJlIiByeD0iMTIiLz48cGF0aCBkPSJNMTYgNDBjMC00IDQtOCA4LThoMTZjNCAwIDggNCA4IDh2NEgxNnYtNHoiIGZpbGw9IiM0ZjhjZmYiLz48cGF0aCBkPSJNMTIgMzJjMC04IDctMTYgMTYtMTZoOGM5IDAgMTYgNyAxNiAxNnYyNEgxMnYtMjR6IiBmaWxsPSIjNmZhYmZmIi8+PGNpcmNsZSBjeD0iMjQiIGN5PSI1MiIgcj0iNCIgZmlsbD0iIzE2MjEzZSIgc3Ryb2tlPSIjNGY4Y2ZmIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI0MCIgY3k9IjUyIiByPSI0IiBmaWxsPSIjMTYyMTNlIiBzdHJva2U9IiM0ZjhjZmYiIHN0cm9rZS13aWR0aD0iMiIvPjx0ZXh0IHg9IjMyIiB5PSIyNCIgZm9udC1zaXplPSIxNiIgZm9udC1mYW1pbHk9IkFyaWFsIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCI+8J+SqzwvdGV4dD48L3N2Zz4=">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgZmlsbD0iIzFhMWEyZSIgcng9IjMyIi8+PHBhdGggZD0iTTUyIDEyMGMwLTggOC0xNiAxNi0xNmg1MmM4IDAgMTYgOCAxNiAxNnYxNkg1MnYtMTZ6IiBmaWxsPSIjNGY4Y2ZmIi8+PHBhdGggZD0iTTM2IDEwNGMwLTE2IDE0LTMwIDMwLTMwaDYwYzE2IDAgMzAgMTQgMzAgMzB2NTRIMzZ2LTU0eiIgZmlsbD0iIzZmYWJmZiIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iMTQ2IiByPSIxMiIgZmlsbD0iIzE2MjEzZSIgc3Ryb2tlPSIjNGY4Y2ZmIiBzdHJva2Utd2lkdGg9IjQiLz48Y2lyY2xlIGN4PSIxMzIiIGN5PSIxNDYiIHI9IjEyIiBmaWxsPSIjMTYyMTNlIiBzdHJva2U9IiM0ZjhjZmYiIHN0cm9rZS13aWR0aD0iNCIvPjx0ZXh0IHg9Ijk2IiB5PSI3NCIgZm9udC1zaXplPSIyOCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCI+8J+SqzwvdGV4dD48L3N2Zz4=">
+    <title>信途网约车租赁管理系统</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="supabase-client.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-header">
+            <div class="header-left">
+                <div class="logo-icon">🚗</div>
+                <h1 class="app-title">信途网约车租赁管理系统</h1>
+            </div>
+            <div class="header-right">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="🔍 搜索车牌、车主、司机姓名...">
+                </div>
+                <button class="admin-btn" id="adminBtn" title="管理员权限：解锁添加/编辑/删除操作">
+                    <span class="admin-icon" id="adminIcon">🔒</span>
+                    <span class="admin-text" id="adminText">只读</span>
+                </button>
+                <button class="cloud-btn" id="cloudBtn" title="云同步状态 / 设置">
+                    <span class="cloud-icon">☁️</span>
+                    <span class="cloud-dot" id="cloudDot"></span>
+                    <span class="cloud-text" id="cloudText">未连接</span>
+                </button>
+                <button class="install-btn" id="installBtn" title="安装到桌面/手机变成APP">
+                    <span class="install-icon">📱</span>
+                    <span class="install-text">安装APP</span>
+                </button>
+                <button class="help-btn" id="helpInstallBtn" title="查看手机安装图文步骤">
+                    ❓
+                </button>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <button class="nav-btn active" data-view="dashboard">
+                        <span class="nav-icon">📊</span>
+                        <span>仪表盘</span>
+                    </button>
+                    <button class="nav-btn" data-view="vehicles">
+                        <span class="nav-icon">🚙</span>
+                        <span>车辆列表</span>
+                    </button>
+                    <button class="nav-btn write-only" data-view="add-vehicle">
+                        <span class="nav-icon">➕</span>
+                        <span>添加车辆</span>
+                    </button>
+                    <button class="nav-btn" data-view="statistics">
+                        <span class="nav-icon">📈</span>
+                        <span>数据统计</span>
+                    </button>
+                </div>
+                <div class="sidebar-section sidebar-filters">
+                    <div class="section-title">快速筛选</div>
+                    <button class="filter-btn" data-filter="all">
+                        <span class="filter-dot dot-all"></span>
+                        全部车辆
+                    </button>
+                    <button class="filter-btn" data-filter="rent-due">
+                        <span class="filter-dot dot-warning"></span>
+                        租金即将到期
+                    </button>
+                    <button class="filter-btn" data-filter="insurance-due">
+                        <span class="filter-dot dot-danger"></span>
+                        保险即将到期
+                    </button>
+                </div>
+                <div class="sidebar-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">车辆总数</div>
+                        <div class="stat-value stat-value-all" id="statTotal">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">待收租金</div>
+                        <div class="stat-value stat-value-warning" id="statRentDue">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">待续保</div>
+                        <div class="stat-value stat-value-danger" id="statInsDue">0</div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="readonly-hint-bar">
+                    <span>🔒 当前为只读模式：只能查看，不能添加 / 编辑 / 删除。</span>
+                    <span>点右上角 <b>🔒 只读</b> 按钮输入管理员密码解锁。</span>
+                    <button class="readonly-hint-btn" onclick="document.getElementById('adminBtn').click();">🔓 立即解锁</button>
+                </div>
+                <div id="view-dashboard" class="view active-view">
+                    <h2 class="view-title">仪表盘</h2>
+                    <div class="dashboard-cards">
+                        <div class="dash-card card-all">
+                            <div class="dash-card-icon">🚙</div>
+                            <div class="dash-card-content">
+                                <div class="dash-card-label">车辆总数</div>
+                                <div class="dash-card-value" id="dashTotal">0</div>
+                            </div>
+                        </div>
+                        <div class="dash-card card-warning">
+                            <div class="dash-card-icon">💰</div>
+                            <div class="dash-card-content">
+                                <div class="dash-card-label">30天内待收租金</div>
+                                <div class="dash-card-value" id="dashRentDue">0</div>
+                            </div>
+                        </div>
+                        <div class="dash-card card-danger">
+                            <div class="dash-card-icon">🛡️</div>
+                            <div class="dash-card-content">
+                                <div class="dash-card-label">30天内待续保</div>
+                                <div class="dash-card-value" id="dashInsDue">0</div>
+                            </div>
+                        </div>
+                        <div class="dash-card card-info">
+                            <div class="dash-card-icon">👤</div>
+                            <div class="dash-card-content">
+                                <div class="dash-card-label">在租司机数</div>
+                                <div class="dash-card-value" id="dashDrivers">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-section">
+                        <h3 class="section-title">⚠️ 紧急提醒</h3>
+                        <div class="alert-list" id="alertList">
+                            <div class="empty-alert">暂无紧急提醒</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-vehicles" class="view">
+                    <div class="view-header">
+                        <h2 class="view-title">车辆列表</h2>
+                        <button class="primary-btn write-only" id="btnGotoAdd">+ 添加车辆</button>
+                    </div>
+                    <div class="vehicle-list" id="vehicleList">
+                        <div class="empty-state">
+                            <div class="empty-icon">🚗</div>
+                            <div class="empty-text">暂无车辆记录，点击"添加车辆"开始</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-add-vehicle" class="view">
+                    <h2 class="view-title" id="formTitle">添加车辆</h2>
+                    <form id="vehicleForm" class="form-card">
+                        <input type="hidden" id="vehicleId">
+                        <div class="form-section">
+                            <div class="section-label">车辆信息</div>
+                            <div class="form-grid">
+                                <div class="form-item">
+                                    <label class="form-label">车牌号 <span class="required">*</span></label>
+                                    <input type="text" id="plateNumber" class="form-input" placeholder="如：京A12345" required>
+                                </div>
+                                <div class="form-item">
+                                    <label class="form-label">车型 <span class="required">*</span></label>
+                                    <input type="text" id="carModel" class="form-input" placeholder="如：比亚迪秦Plus" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-section">
+                            <div class="section-label">车主信息</div>
+                            <div class="form-grid">
+                                <div class="form-item">
+                                    <label class="form-label">车主姓名 <span class="required">*</span></label>
+                                    <input type="text" id="ownerName" class="form-input" placeholder="请输入车主姓名" required>
+                                </div>
+                                <div class="form-item">
+                                    <label class="form-label">车主电话 <span class="required">*</span></label>
+                                    <input type="tel" id="ownerPhone" class="form-input" placeholder="请输入联系电话" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-section">
+                            <div class="section-label">租赁信息</div>
+                            <div class="form-grid">
+                                <div class="form-item">
+                                    <label class="form-label">师傅押金</label>
+                                    <input type="number" id="driverDeposit" class="form-input" placeholder="请输入师傅押金金额" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-section">
+                            <div class="section-label">其他信息</div>
+                            <div class="form-grid">
+                                <div class="form-item">
+                                    <label class="form-label">年检日期</label>
+                                    <input type="date" id="annualInspectionDate" class="form-input">
+                                </div>
+                                <div class="form-item">
+                                    <label class="form-label">管理费日期</label>
+                                    <input type="date" id="managementFeeDate" class="form-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="cancel-btn write-only" id="btnCancelForm">取消</button>
+                            <button type="submit" class="primary-btn write-only">保存</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="view-detail" class="view">
+                    <div class="view-header">
+                        <button class="back-btn" id="btnBack">← 返回列表</button>
+                        <h2 class="view-title" id="detailTitle">车辆详情</h2>
+                    </div>
+                    <div id="detailContent"></div>
+                </div>
+
+                <div id="view-statistics" class="view">
+                    <h2 class="view-title">数据统计与报表</h2>
+                    <div id="statisticsContent"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="imageModal">
+        <div class="modal-content image-modal">
+            <button class="modal-close" id="btnCloseImageModal">×</button>
+            <img id="modalImage" src="" alt="预览图片">
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-content confirm-modal">
+            <div class="confirm-icon">⚠️</div>
+            <div class="confirm-title" id="confirmTitle">确认操作</div>
+            <div class="confirm-text" id="confirmText">确定要执行此操作吗？</div>
+            <div class="confirm-actions">
+                <button class="cancel-btn" id="btnConfirmCancel">取消</button>
+                <button class="danger-btn" id="btnConfirmOk">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="installHelpModal">
+        <div class="modal-content help-modal">
+            <button class="modal-close" id="btnCloseHelpModal">×</button>
+            <div class="help-header">
+                <div class="help-icon">📱</div>
+                <div class="help-title">安装成手机/桌面APP - 图文步骤</div>
+                <div class="help-subtitle">30秒搞定，以后点图标直接打开，不用输网址</div>
+            </div>
+            <div class="help-tabs">
+                <button class="help-tab active" data-tab="pc">💻 电脑 Chrome / Edge</button>
+                <button class="help-tab" data-tab="android">🤖 安卓手机</button>
+                <button class="help-tab" data-tab="ios">🍎 苹果 iPhone</button>
+            </div>
+            <div class="help-content">
+                <div class="help-panel active" data-panel="pc">
+                    <div class="help-step"><div class="step-num">0</div><div class="step-body"><div class="step-title">先把网址复制到完整浏览器打开</div><div class="step-desc">如果你现在是在编辑器、内嵌预览窗格里看的，要先把地址 <b>http://localhost:8080</b> 复制到电脑桌面上的 <b>Microsoft Edge</b> 或 <b>Google Chrome</b> 里打开。（编辑器里的预览浏览器不支持安装）</div></div></div>
+                    <div class="help-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">点页面右上角的「📱 安装APP」大按钮</div><div class="step-desc">就在搜索框右边那个蓝紫色发光的按钮，一按就弹安装框</div></div></div>
+                    <div class="help-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">在弹出的小窗口点「安装」</div><div class="step-desc">如果按钮没弹框，也可以用浏览器菜单：Edge 右上角 ⋮ → 应用 → 将此站点作为应用安装；Chrome 右上角 ⋮ → 安装「信途网约车租赁管理系统」</div></div></div>
+                    <div class="help-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">安装完成</div><div class="step-desc">开始菜单和桌面会出现「信途网约车」图标，以后双击就能用，和普通软件一模一样</div></div></div>
+                </div>
+                <div class="help-panel" data-panel="android">
+                    <div class="help-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">用 Chrome 浏览器打开本页面</div><div class="step-desc">不要用微信打开，微信不支持安装</div></div></div>
+                    <div class="help-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">点右上角的「安装APP」按钮</div><div class="step-desc">或者 Chrome 右上角 ⋮ 三个点 →「安装应用」</div></div></div>
+                    <div class="help-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">点「安装」</div><div class="step-desc">桌面就出现图标啦，以后点图标直接全屏打开</div></div></div>
+                </div>
+                <div class="help-panel" data-panel="ios">
+                    <div class="help-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">必须用 Safari 浏览器打开</div><div class="step-desc">iPhone只支持 Safari 装APP，Chrome/微信都不行哦</div></div></div>
+                    <div class="help-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">点底部中间的 ⬆️ 分享按钮</div><div class="step-desc">在Safari最下面一排正中间，一个方框往上指的箭头</div></div></div>
+                    <div class="help-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">往下滑，找到「添加到主屏幕」</div><div class="step-desc">看到蓝色「+」号那个选项，点它</div></div></div>
+                    <div class="help-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">点右上角「添加」</div><div class="step-desc">回到桌面，最后一页就能看到「网约车管理」图标了</div></div></div>
+                </div>
+            </div>
+            <div class="help-footer">
+                <div class="help-tip">💡 装好后数据和浏览器是共用的，之前录的车辆、司机都在，不用担心丢失</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal-content help-modal" style="max-width:640px;">
+            <button class="modal-close" id="btnCloseAdminModal">×</button>
+            <div class="help-header">
+                <div class="help-icon" id="adminModalIcon">🔐</div>
+                <div class="help-title" id="adminModalTitle">管理员登录</div>
+                <div class="help-subtitle" id="adminModalSubtitle">输入账号密码登录，才能添加 / 编辑 / 删除数据</div>
+            </div>
+            <div class="admin-body">
+                <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+                    <button class="ghost-btn admin-tab-btn admin-tab-active" id="btnTabLogin">🔐 登录</button>
+                    <button class="ghost-btn admin-tab-btn" id="btnTabProfile" style="display:none;">🛡️ 我的资料</button>
+                    <button class="ghost-btn admin-tab-btn" id="btnTabManage" style="display:none;">👥 管理员列表</button>
+                </div>
+                <div id="adminLoginPane">
+                    <div class="admin-row">
+                        <label class="admin-label">管理员账号</label>
+                        <input type="text" id="adminLoginUser" class="admin-input" placeholder="请输入管理员账号" autocomplete="off">
+                    </div>
+                    <div class="admin-row">
+                        <label class="admin-label">管理员密码</label>
+                        <input type="password" id="adminLoginPwd" class="admin-input" placeholder="请输入管理员密码" autocomplete="off">
+                    </div>
+                    <div class="admin-hint">💡 登录后可在「我的资料」修改自己的密码；只有超级管理员才能新增或删除其他管理员账号。</div>
+                </div>
+                <div id="adminProfilePane" style="display:none;">
+                    <div class="admin-row">
+                        <label class="admin-label">当前密码</label>
+                        <input type="password" id="meOldPwd" class="admin-input" placeholder="请输入当前账号的密码" autocomplete="off">
+                    </div>
+                    <div class="admin-row">
+                        <label class="admin-label">新密码</label>
+                        <input type="password" id="meNewPwd" class="admin-input" placeholder="至少 4 位" autocomplete="off">
+                    </div>
+                    <div class="admin-row">
+                        <label class="admin-label">确认新密码</label>
+                        <input type="password" id="meNewPwd2" class="admin-input" placeholder="再输一遍新密码" autocomplete="off">
+                    </div>
+                    <div class="admin-hint">💡 这里只能改「当前登录的这个账号」的密码，不能改别人的密码（普通管理员）。超级管理员要改别人密码，请到「👥 管理员列表」。</div>
+                </div>
+                <div id="adminManagePane" style="display:none;">
+                    <div class="admin-hint" style="margin-bottom:14px;background:rgba(255,212,59,.06);border-color:rgba(255,212,59,.25);">💡 本页仅「超级管理员」可见。可新增 / 删除普通管理员账号，或重置任何普通管理员的密码。如果忘记超级管理员密码，可在浏览器控制台清理 <code style="background:#121828;padding:2px 4px;border-radius:4px;">localStorage</code> 中管理员相关项后刷新，系统将恢复出厂超级管理员账号（密码请以你实际设定的为准，或咨询系统搭建人员）。</div>
+                    <div id="adminListBody" style="margin-bottom:16px;display:flex;flex-direction:column;gap:10px;"></div>
+                    <div style="padding:14px;border:1px dashed var(--border-color);border-radius:10px;background:rgba(79,140,255,.04);">
+                        <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">➕ 新增普通管理员</div>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                            <input type="text" id="newAdminUser" class="admin-input" placeholder="账号（2-32 位，如 lisi / zhaowu）" autocomplete="off" style="flex:1;min-width:180px;">
+                            <input type="password" id="newAdminPwd" class="admin-input" placeholder="初始密码（至少 4 位）" autocomplete="off" style="flex:1;min-width:180px;">
+                            <button class="primary-btn" id="btnAdminCreate" style="min-width:120px;">💾 保存</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="adminStatusLine" class="admin-status">&nbsp;</div>
+            </div>
+            <div class="cloud-setup-actions">
+                <button class="ghost-btn" id="btnAdminLogout" style="display:none;">🚪 退出登录</button>
+                <div style="flex:1;"></div>
+                <button class="cancel-btn" id="btnAdminCancel">关闭</button>
+                <button class="primary-btn" id="btnAdminSubmit" style="min-width:160px;">🔓 登录解锁</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="cloudSetupModal">
+        <div class="modal-content help-modal">
+            <button class="modal-close" id="btnCloseCloudModal">×</button>
+            <div class="help-header">
+                <div class="help-icon">☁️</div>
+                <div class="help-title">云同步设置 - 连接 Supabase</div>
+                <div class="help-subtitle">配置完成后电脑和手机就共用同一份数据啦</div>
+            </div>
+            <div class="cloud-setup-steps">
+                <div class="cloud-step" id="cloudStepWarn">
+                    <div class="step-num" style="background:#ffd43b;color:#1a1a2e;">!</div>
+                    <div class="step-body">
+                        <div class="step-title">还没做这两步的先去做（3分钟）</div>
+                        <div class="step-desc cloud-warn">
+                            <b>第 A 步：建数据库表</b><br>
+                            打开 <a href="https://supabase.com/dashboard/project/wphfpqpcpcllxcjmjtqa/sql/new" target="_blank" rel="noreferrer">Supabase SQL Editor</a>，
+                            把项目文件夹里的 <code>init-db.sql</code> 全选复制粘贴进去，点右下角「Run」。
+                            <br><br>
+                            <b>第 B 步：建图片存储桶</b><br>
+                            左边菜单 Storage → 右上角「New bucket」→ 名字 <code>wyc-documents</code> → 打勾「Make public」→ Create。
+                        </div>
+                    </div>
+                </div>
+                <div class="cloud-step" id="cloudStep1">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <div class="step-title">复制 Anon Public Key</div>
+                        <div class="step-desc">
+                            打开 <a href="https://supabase.com/dashboard/project/wphfpqpcpcllxcjmjtqa/settings/api" target="_blank" rel="noreferrer">API 设置页面</a>，
+                            在 "Project API keys" 下面，找到 <b>anon public</b> 那行，点右边的 <b>Copy</b>。
+                            <br><span style="color:#fcc;">⚠️ 不要复制 service_role！那是后台用的，前端只需要 anon public</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="cloud-step" id="cloudStep2">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <div class="step-title">粘贴到下面输入框</div>
+                        <div class="step-desc">
+                            <textarea id="anonKeyInput" class="anon-key-input" placeholder="以 eyJhbGciOi 开头的一串很长的 key..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="cloud-step" id="cloudStep3">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <div class="step-title">点「测试连接并保存」</div>
+                        <div class="step-desc" id="cloudTestResult">等待测试...</div>
+                    </div>
+                </div>
+                <div class="cloud-step" id="migrateStep" style="display:none;">
+                    <div class="step-num" style="background:#2ed573;">✓</div>
+                    <div class="step-body">
+                        <div class="step-title">连接成功！迁移现有数据</div>
+                        <div class="step-desc">
+                            <div id="migrateSummary" style="margin-bottom:12px;padding:10px 14px;background:#16213e;border-radius:8px;border:1px solid #2a3859;">正在统计本地数据...</div>
+                            <button class="primary-btn" id="btnDoMigrate">📥 一键把本地数据传到云端</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="cloud-setup-actions">
+                <button class="primary-btn" id="btnSaveCloud">🔗 测试连接并保存</button>
+                <button class="cancel-btn" id="btnCancelCloud">关闭</button>
+            </div>
+            <div class="help-footer" style="margin-top:18px;">
+                <div class="help-tip">💡 填好的 anon key 只保存在你本机浏览器里，别的设备要各填一次（同样的 key）。以后打开页面会自动连接云端。</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+
+
+    <script src="app.js"></script>
+    <script>
+    (function () {
+      const basePath = (() => {
+        const p = location.pathname.replace(/\/[^\/]*$/, '/');
+        return p.endsWith('/') ? p : p + '/';
+      })();
+
+      function isPWA() {
+        try {
+          if (window.matchMedia('(display-mode: standalone)').matches) return true;
+          if (window.matchMedia('(display-mode: fullscreen)').matches) return true;
+        } catch(_) {}
+        if (document.referrer && document.referrer.indexOf('android-app://') === 0) return true;
+        if (navigator.standalone === true) return true;
+        return false;
+      }
+
+      if ('serviceWorker' in navigator) {
+        const registerSW = (attempt = 0) => {
+          const swUrl = basePath + 'service-worker.js' + (attempt ? '?v=' + attempt : '');
+          navigator.serviceWorker.register(swUrl, { scope: basePath, updateViaCache: 'none' })
+            .then(reg => {
+              if (reg && reg.installing) {
+                reg.installing.postMessage({ type: 'skipWaiting' });
+              }
+              try {
+                if (typeof reg.update === 'function') setTimeout(() => reg.update(), 1200);
+              } catch(_) {}
+            })
+            .catch(err => {
+              console.log('SW注册失败(重试' + attempt + '):', err && err.message || err);
+              if (attempt < 3) setTimeout(() => registerSW(attempt + 1), 800 * (attempt + 1));
+            });
+        };
+        window.addEventListener('load', () => registerSW(0));
+      }
+      if (window.location.hash) {
+        const hash = window.location.hash.replace('#', '');
+        const map = { 'vehicles': 'vehicles', 'add-vehicle': 'add-vehicle' };
+        if (map[hash] && typeof Navigation !== 'undefined' && Navigation.switchView) {
+          setTimeout(() => Navigation.switchView(map[hash]), 100);
+        }
+      }
+
+      let deferredPrompt = null;
+      let installPromptFired = false;
+      let isInstalled = isPWA();
+      const installBtn = document.getElementById('installBtn');
+      const helpBtn = document.getElementById('helpInstallBtn');
+      const helpModal = document.getElementById('installHelpModal');
+      const closeHelpBtn = document.getElementById('btnCloseHelpModal');
+
+      function detectPlatform() {
+        const ua = navigator.userAgent || '';
+        if (/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+        if (/Android/i.test(ua)) return 'android';
+        if (/HarmonyOS|OpenHarmony|HMOS/i.test(ua)) return 'android';
+        if (/Mac OS X|Macintosh/.test(ua)) {
+          return (navigator.maxTouchPoints && navigator.maxTouchPoints > 1) ? 'ios' : 'pc';
+        }
+        return 'pc';
+      }
+
+      function openHelp(tab) {
+        if (!helpModal) return;
+        const platform = tab || detectPlatform();
+        document.querySelectorAll('.help-tab').forEach(t => {
+          t.classList.toggle('active', t.dataset.tab === platform);
+        });
+        document.querySelectorAll('.help-panel').forEach(p => {
+          p.classList.toggle('active', p.dataset.panel === platform);
+        });
+        helpModal.classList.add('active');
+      }
+
+      function updateInstallBtnState() {
+        if (!installBtn) return;
+        isInstalled = isPWA();
+        if (isInstalled) {
+          installBtn.classList.add('installed');
+          const txt = installBtn.querySelector('.install-text');
+          const ic = installBtn.querySelector('.install-icon');
+          if (txt) txt.textContent = '已安装';
+          if (ic) ic.textContent = '✅';
+          installBtn.title = '已安装到桌面/手机';
+          return;
+        }
+        installBtn.classList.remove('installed');
+        const platform = detectPlatform();
+        const textSpan = installBtn.querySelector('.install-text');
+        if (!textSpan) return;
+        if (platform === 'ios') {
+          textSpan.textContent = '加桌面';
+          installBtn.title = 'iPhone 必须手动点 Safari 分享→添加到主屏幕，点我看步骤';
+        } else if (platform === 'android') {
+          if (deferredPrompt) {
+            textSpan.textContent = '安装APP';
+            installBtn.title = '点我立即弹出安装框（HTTPS 已就绪）';
+          } else {
+            textSpan.textContent = '手动装APP';
+            installBtn.title = '浏览器尚未触发自动安装，点我看手动 3 步装';
+          }
+        } else {
+          textSpan.textContent = deferredPrompt ? '安装APP' : '点我看步骤';
+        }
+      }
+
+      function handleBeforeInstall(e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        installPromptFired = true;
+        updateInstallBtnState();
+        if (typeof Toast !== 'undefined') {
+          Toast.show('📱 可以一键安装APP了，点右上角「安装APP」按钮', 'success', 3000);
+        }
+      }
+      window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+      setTimeout(() => {
+        if (!installPromptFired && 'serviceWorker' in navigator && isSecureContext && !isPWA()) {
+          const platform = detectPlatform();
+          if (platform === 'android') {
+            try {
+              const ev = new Event('beforeinstallprompt', { cancelable: true });
+              window.dispatchEvent(ev);
+            } catch(_) {}
+          }
+        }
+      }, 10000);
+
+      window.addEventListener('appinstalled', () => {
+        isInstalled = true;
+        updateInstallBtnState();
+        deferredPrompt = null;
+        if (typeof Toast !== 'undefined') Toast.show('🎉 安装成功！关闭浏览器，点桌面🚗图标启动', 'success', 4000);
+      });
+
+      window.addEventListener('DOMContentLoaded', () => setTimeout(updateInstallBtnState, 300));
+      window.addEventListener('online', () => setTimeout(updateInstallBtnState, 600));
+
+      if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+          if (isPWA()) {
+            if (typeof Toast !== 'undefined') Toast.show('✅ 已经在APP模式里啦，关闭后点桌面图标启动', 'success');
+            return;
+          }
+          const platform = detectPlatform();
+
+          if (deferredPrompt) {
+            try {
+              deferredPrompt.prompt();
+              const { outcome } = await deferredPrompt.userChoice;
+              if (outcome === 'accepted') {
+                if (typeof Toast !== 'undefined') Toast.show('正在安装…桌面图标 3 秒后出现', 'success', 3000);
+              } else {
+                if (typeof Toast !== 'undefined') Toast.show('取消了，随时点「安装APP」再装', 'warning');
+              }
+            } catch (e) {
+              if (typeof Toast !== 'undefined') {
+                Toast.show('浏览器拦截了自动安装，按下面手动步骤 3 步搞定', 'warning', 4500);
+              }
+              openHelp(platform);
+            }
+            deferredPrompt = null;
+            return;
+          }
+
+          let msg = '';
+          if (platform === 'ios') {
+            msg = '🍎 iPhone 规定只能手动加：Safari 中间⬆️分享→添加到主屏幕→添加。点我看图文步骤';
+          } else if (platform === 'android') {
+            const isSecure = window.isSecureContext || location.protocol === 'https:';
+            if (!isSecure) {
+              msg = '⚠️ 局域网 HTTP 不支持自动弹安装框，用 GitHub Pages HTTPS 网址打开后会自动弹。现在用手动 3 步：Chrome⋮→安装应用→安装';
+            } else {
+              if (!installPromptFired) {
+                msg = '🔄 浏览器还在准备安装环境（SW/PWA 检测），等 10 秒再点一次，或者直接手动 3 步装：Chrome⋮→安装应用→安装';
+              } else {
+                msg = '🔄 本次已触发过安装事件，刷新页面或手动 3 步：Chrome⋮→安装应用→安装';
+              }
+            }
+          } else {
+            msg = '💻 电脑端：地址栏右边找 ⊞ 安装图标，或者 Edge/Chrome 右上角⋮→应用→将此站点作为应用安装';
+          }
+          if (typeof Toast !== 'undefined') Toast.show(msg, platform === 'ios' ? 'info' : 'warning', 5500);
+          openHelp(platform);
+        });
+        setTimeout(updateInstallBtnState, 500);
+        setTimeout(updateInstallBtnState, 2000);
+        setTimeout(updateInstallBtnState, 10000);
+      }
+
+      if (helpBtn) helpBtn.addEventListener('click', () => openHelp(detectPlatform()));
+      if (closeHelpBtn) closeHelpBtn.addEventListener('click', () => helpModal && helpModal.classList.remove('active'));
+      if (helpModal) {
+        helpModal.addEventListener('click', (e) => {
+          if (e.target.id === 'installHelpModal') helpModal.classList.remove('active');
+        });
+      }
+      document.querySelectorAll('.help-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const key = tab.dataset.tab;
+          document.querySelectorAll('.help-tab').forEach(t => t.classList.toggle('active', t === tab));
+          document.querySelectorAll('.help-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === key));
+        });
+      });
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{
+  "name": "信途网约车租赁管理系统",
+  "short_name": "信途网约车",
+  "description": "车辆、车主、司机租赁、保险到期提醒管理系统",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1a1a2e",
+  "theme_color": "#16213e",
+  "lang": "zh-CN",
+  "scope": "./",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "finance"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgZmlsbD0iIzFhMWEyZSIgcng9IjMyIi8+PHBhdGggZD0iTTUyIDEyMGMwLTggOC0xNiAxNi0xNmg1MmM4IDAgMTYgOCAxNiAxNnYxNkg1MnYtMTZ6IiBmaWxsPSIjNGY4Y2ZmIi8+PHBhdGggZD0iTTM2IDEwNGMwLTE2IDE0LTMwIDMwLTMwaDYwYzE2IDAgMzAgMTQgMzAgMzB2NTRIMzZ2LTU0eiIgZmlsbD0iIzZmYWJmZiIgb3BhY2l0eT0iLjkiLz48Y2lyY2xlIGN4PSI2MCIgY3k9IjE0NiIgcj0iMTIiIGZpbGw9IiMxNjIxM2UiIHN0cm9rZT0iIzRmOGNmZiIgc3Ryb2tlLXdpZHRoPSI0Ii8+PGNpcmNsZSBjeD0iMTMyIiBjeT0iMTQ2IiByPSIxMiIgZmlsbD0iIzE2MjEzZSIgc3Ryb2tlPSIjNGY4Y2ZmIiBzdHJva2Utd2lkdGg9IjQiLz48dGV4dCB4PSI5NiIgeT0iNzQiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiPuKAlDwvdGV4dD48L3N2Zz4=",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzFhMWEyZSIgcng9Ijg0Ii8+PHJlY3QgeD0iNjQiIHk9IjY0IiB3aWR0aD0iMzg0IiBoZWlnaHQ9IjM4NCIgZmlsbD0iIzE2MjEzZSIgcng9IjY0Ii8+PHBhdGggZD0iTTEyOCAzMjBjMC0yNCAyNC00OCA0OC00OGgxNjBjMjQgMCA0OCAyNCA0OCA0OHY0OEgxMjh2LTQ4eiIgZmlsbD0iIzRmOGNmZiIvPjxwYXRoIGQ9Ik04OCAyODBjMC00OCA0Mi05NiA5Ni05NmgxNzRjNTQgMCA5NiA0MiA5NiA5NnYxNjBIODh2LTE2MHoiIGZpbGw9IiM2ZmFiZmYiIG9wYWNpdHk9Ii45Ii8+PGNpcmNsZSBjeD0iMTYwIiBjeT0iMzkyIiByPSIzNiIgZmlsbD0iIzFhMWEyZSIgc3Ryb2tlPSIjNGY4Y2ZmIiBzdHJva2Utd2lkdGg9IjEyIi8+PGNpcmNsZSBjeD0iMzUyIiBjeT0iMzkyIiByPSIzNiIgZmlsbD0iIzFhMWEyZSIgc3Ryb2tlPSIjNGY4Y2ZmIiBzdHJva2Utd2lkdGg9IjEyIi8+PHRleHQgeD0iMjU2IiB5PSIxODAiIGZvbnQtc2l6ZT0iNzIiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiPuKAlDwvdGV4dD48dGV4dCB4PSIyNTYiIHk9IjI1MCIgZm9udC1zaXplPSIyNCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmaWxsPSIjOWNhOGMwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNjAwIj7nvZHnu5znq5votbfnrYjnvZHnq5s8L3RleHQ+PC9zdmc+",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "车辆列表",
+      "short_name": "车辆",
+      "description": "查看全部车辆",
+      "url": "./index.html#vehicles",
+      "icons": [{ "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjNGY4Y2ZmIiByeD0iMjQiLz48dGV4dCB4PSI0OCIgeT0iNjAiIGZvbnQtc2l6ZT0iNDQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiPvCfkqs8L3RleHQ+PC9zdmc+", "sizes": "96x96" }]
+    },
+    {
+      "name": "添加车辆",
+      "short_name": "添加",
+      "description": "录入新车辆",
+      "url": "./index.html#add-vehicle",
+      "icons": [{ "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMmVkNTczIiByeD0iMjQiLz48dGV4dCB4PSI0OCIgeT0iNjAiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiPivvuI88L3RleHQ+PC9zdmc+", "sizes": "96x96" }]
+    }
+  ]
+}

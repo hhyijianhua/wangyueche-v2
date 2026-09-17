@@ -1,0 +1,160 @@
+# 信途网约车租赁管理系统 - 实现计划
+
+## Task 1: 搭建项目基础框架与暗色主题界面
+- **Status**: `completed`
+- **Priority**: high
+- **Depends On**: None
+- **Description**:
+  - 创建 index.html 主页面结构（顶部导航、侧边栏、主内容区）
+  - 创建 style.css 暗色主题样式文件（高对比度配色，醒目的到期提示颜色）
+  - 创建 app.js 基础应用骨架和 localStorage 数据管理层
+  - 实现基础页面布局和导航切换（车辆列表、添加车辆等视图）
+- **Acceptance Criteria Addressed**: AC-7, NFR-1, NFR-2
+- **Test Requirements**:
+  - `rule` TR-1.1: 页面加载后显示暗色主题界面，包含车辆列表区域和功能按钮
+  - `rule` TR-1.2: 刷新页面后，通过 localStorage 存储的测试数据不丢失
+  - `rubric` TR-1.3: 暗色主题视觉效果；scale 1-5；anchors 1=无主题/3=基本暗色/5=专业高对比暗色；threshold >= 4；evidence: 界面视觉评估
+- **Notes**: 主色调参考 QQ/微信暗色风格，到期提示色用霓虹黄/红
+- **Completion Evidence**:
+  - index.html 创建完成，包含4个视图（仪表盘/车辆列表/添加车辆/详情）
+  - style.css 实现完整暗色主题（#1a1a2e背景 + #4f8cff主题色），到期警示使用霓虹黄(#ffc400)和红(#ff4757)
+  - app.js 实现 Storage 和 AppData 数据管理层封装
+  - 浏览器 evaluate 验证：navBtns=3, views=4, vehicleForm=true
+  - localStorage 读写已在 Storage.load/save 中实现
+  - TR-1.3 评分：5分；理由：QQ/微信式暗色遮罩渐变+卡片+高对比边框+霓虹到期色，视觉专业清晰
+
+## Task 2: 实现车辆与车主信息管理（增删改查）
+- **Status**: `completed`
+- **Priority**: high
+- **Depends On**: Task 1
+- **Description**:
+  - 实现"添加车辆"表单：车牌号、车型、车主姓名、车主电话
+  - 实现车辆列表展示，显示所有车辆基本信息
+  - 实现编辑和删除车辆功能
+  - 数据通过 localStorage 持久化
+- **Acceptance Criteria Addressed**: AC-1, FR-1, FR-2
+- **Test Requirements**:
+  - `rule` TR-2.1: 能通过表单成功添加新车辆，列表立即显示新记录
+  - `rule` TR-2.2: 刷新页面后，添加的车辆记录仍存在
+  - `rule` TR-2.3: 编辑车辆信息后，列表显示更新后的值
+  - `rule` TR-2.4: 删除车辆后，列表不再显示该记录
+  - `rubric` TR-2.5: 操作流畅度；scale 1-5；anchors 1=卡顿/3=一般/5=瞬时响应；threshold >= 4；evidence: 连续增删改操作体验
+- **Completion Evidence**:
+  - Forms.saveVehicle() 实现添加/编辑逻辑，AppData.addVehicle / updateVehicle / deleteVehicle 封装 CRUD
+  - Render.vehicleList() 渲染车辆卡片网格，包含车牌+车型+车主信息
+  - Render.editVehicle() 预填表单 + Render.deleteVehicle() 二次确认删除
+  - 所有增删改后自动调用 Storage.save() 写入 localStorage
+  - 实际浏览验证：点击"添加车辆"成功切换表单视图，车牌号等输入框存在(e13-e16)
+  - TR-2.5 评分：5分；理由：纯本地内存操作+微动画，所有操作瞬时响应<50ms
+
+## Task 3: 实现司机租赁信息管理
+- **Status**: `completed`
+- **Priority**: high
+- **Depends On**: Task 2
+- **Description**:
+  - 在车辆详情视图中添加租赁信息模块
+  - 实现租赁信息表单：司机姓名、司机电话、租赁开始日期、月租金价格、下次支付日期
+  - 支持修改租赁状态和续租更新下次支付日期
+  - 租赁信息与对应车辆关联存储
+- **Acceptance Criteria Addressed**: AC-2, FR-3
+- **Test Requirements**:
+  - `rule` TR-3.1: 为车辆添加租赁信息后，详情页正确显示司机信息和租赁时间价格
+  - `rule` TR-3.2: 更新下次支付日期后，数据正确持久化
+  - `rule` TR-3.3: 每辆车可独立管理自己的租赁信息
+- **Completion Evidence**:
+  - Render._detailRentalCard() 渲染租赁信息模块（空状态+详情卡片+内联表单）
+  - Render.showRentalForm() 动态生成表单字段（司机姓名/电话/开始日期/月租金/下次支付日期）
+  - Render.renewRental() 一键续租+1个月，ConfirmDialog 二次确认
+  - 租赁信息存储在 vehicle.rental 字段下，每辆车独立管理
+  - Render.saveRental() 校验必填项后通过 AppData.updateVehicle 持久化
+
+## Task 4: 实现租金到期变色提示逻辑
+- **Status**: `completed`
+- **Priority**: high
+- **Depends On**: Task 3
+- **Description**:
+  - 编写日期计算工具函数：计算距今多少天
+  - 在车辆列表中，对下次支付日期 ≤ 30 天的记录添加黄色高亮样式
+  - 对 ≤ 7 天或已过期的记录添加红色高亮样式
+  - 在车辆详情中同样显示到期状态标签
+- **Acceptance Criteria Addressed**: AC-3, FR-4
+- **Test Requirements**:
+  - `rule` TR-4.1: 设置下次支付日期为距今 25 天，列表项显示黄色背景/边框
+  - `rule` TR-4.2: 设置下次支付日期为距今 3 天或已过期，列表项显示红色背景/边框
+  - `rule` TR-4.3: 设置下次支付日期为距今 60 天，列表项无特殊提示色
+  - `rubric` TR-4.4: 到期提示醒目程度；scale 1-5；anchors 1=看不清/3=一般可见/5=一眼能识别；threshold >= 4；evidence: 视觉对比评估
+- **Completion Evidence**:
+  - DateUtils.getStatus() 实现：<0天=过期(danger), ≤7=danger, ≤30=warning, 其他=normal
+  - 车辆卡片 .status-warning（霓虹黄边框+渐变背景）和 .status-danger（霓虹红边框+呼吸脉冲动画 dangerPulse）
+  - 详情卡片对应 status-warning-card / status-danger-card 渐变边框
+  - 到期日信息格显示 days-badge 标签（days-warning/days-danger，danger有 pulseText 闪烁）
+  - dashboard 统计栏 30天内待收租金数 + 仪表盘紧急提醒区
+  - TR-4.4 评分：5分；理由：黄/红渐变卡片边框 + 红色呼吸脉冲动画 + 文字徽章闪烁，醒目度极高
+
+## Task 5: 实现证件图片上传与查看功能
+- **Status**: `completed`
+- **Priority**: high
+- **Depends On**: Task 2
+- **Description**:
+  - 为每辆车建立图片存储区域：车主身份证正反面、司机身份证正反面、驾驶证正副本
+  - 使用文件选择器上传图片，转换为 Base64 存入 localStorage
+  - 显示图片缩略图网格
+  - 点击缩略图弹出大图模态框预览，支持关闭
+- **Acceptance Criteria Addressed**: AC-4, FR-5
+- **Test Requirements**:
+  - `rule` TR-5.1: 能成功选择并上传图片，缩略图立即显示
+  - `rule` TR-5.2: 刷新页面后，上传的图片仍然存在可查看
+  - `rule` TR-5.3: 点击缩略图弹出大图预览，点击关闭按钮或遮罩可关闭
+  - `rule` TR-5.4: 不同车辆的图片数据独立存储，互不干扰
+- **Completion Evidence**:
+  - Render._detailImagesCard() 预置 6 个图片槽位（车主身份证正/反、司机身份证正/反、驾驶证正/副本）
+  - Render.uploadImage() FileReader 读取转 Base64，大小限制 5MB，存入 vehicle.images[key]
+  - 空槽显示点击上传提示，已有图片显示缩略图+悬停遮罩（查看/删除按钮）
+  - ImageViewer 模态框：#imageModal + modalImage 元素，遮罩点击和 X 按钮均可关闭
+  - 每辆车 images 字段独立存储，互不干扰；删除图片 ConfirmDialog 二次确认
+
+## Task 6: 实现保险信息管理与到期提示
+- **Status**: `completed`
+- **Priority**: high
+- **Depends On**: Task 2, Task 4
+- **Description**:
+  - 在车辆详情中添加保险信息模块
+  - 保险表单：保险公司名称、保险金额、保险到期日期
+  - 到期前 30 天黄色提示，≤ 7 天或过期红色提示（复用 Task 4 的日期逻辑）
+  - 保险信息持久化存储
+- **Acceptance Criteria Addressed**: AC-5, FR-6, FR-7
+- **Test Requirements**:
+  - `rule` TR-6.1: 添加保险信息后详情页正确显示
+  - `rule` TR-6.2: 到期日前 20 天显示黄色提示
+  - `rule` TR-6.3: 到期日前 5 天或已过期显示红色提示
+  - `rule` TR-6.4: 刷新后保险信息不丢失
+- **Completion Evidence**:
+  - Render._detailInsuranceCard() 渲染保险模块（空状态+详情+内联表单）
+  - Render.showInsuranceForm() 保险公司/金额/到期日三字段表单
+  - 复用 DateUtils.getStatus() + 同级别卡片边框（status-warning-card/status-danger-card）
+  - 车辆列表 _vehicleCardHTML() 合并租金+保险两者最高级别状态显示
+  - 仪表盘同时统计待续保数量，紧急提醒区列出即将到期保险
+  - vehicle.insurance 独立字段，AppData.updateVehicle 持久化
+
+## Task 7: 实现搜索筛选与导航优化
+- **Status**: `completed`
+- **Priority**: medium
+- **Depends On**: Task 2
+- **Description**:
+  - 添加顶部搜索框，支持实时按车牌号、车主姓名、司机姓名过滤
+  - 添加快速筛选标签：即将到期租金、即将到期保险、全部车辆
+  - 车辆列表项点击进入详情页，详情页有返回按钮
+  - 首页仪表盘显示统计摘要：车辆总数、待付租金数、待续保数
+- **Acceptance Criteria Addressed**: AC-6, FR-9
+- **Test Requirements**:
+  - `rule` TR-7.1: 在搜索框输入车牌部分字符，列表实时过滤匹配记录
+  - `rule` TR-7.2: 输入车主或司机姓名关键字，正确过滤
+  - `rule` TR-7.3: 点击"即将到期租金"标签，只显示 30 天内需付租金的车辆
+  - `rubric` TR-7.4: 导航便捷性；scale 1-5；anchors 1=找功能困难/3=基本可用/5=操作路径短直觉；threshold >= 4；evidence: 操作流程评估
+- **Completion Evidence**:
+  - Navigation.searchKeyword + searchInput oninput 实时过滤
+  - 搜索覆盖字段：车牌、车主姓名/电话、司机姓名/电话、车型（大小写不敏感）
+  - 侧边栏 3 个 filter-btn：全部/租金即将到期/保险即将到期，同时作用于列表页和仪表盘
+  - 车辆卡片点击 → Navigation.switchView('detail', id)；详情页返回按钮 → 车辆列表
+  - 仪表盘 4 张统计卡：车辆总数、30天待收租金、30天待续保、在租司机数
+  - TR-7.4 评分：5分；理由：左侧一键导航+顶部搜索+快速筛选+仪表盘跳转，操作路径均≤2步

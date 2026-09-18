@@ -1215,7 +1215,6 @@ const Forms = {
     resetVehicleForm() {
         document.getElementById('vehicleForm').reset();
         document.getElementById('vehicleId').value = '';
-        document.getElementById('driverDeposit').value = 0;
         document.getElementById('annualInspectionDate').value = '';
         document.getElementById('managementFeeDate').value = '';
         document.getElementById('formTitle').textContent = '添加车辆';
@@ -1226,7 +1225,7 @@ const Forms = {
         document.getElementById('carModel').value = vehicle.carModel || '';
         document.getElementById('ownerName').value = vehicle.ownerName || '';
         document.getElementById('ownerPhone').value = vehicle.ownerPhone || '';
-        document.getElementById('driverDeposit').value = vehicle.driverDeposit || 0;
+        // 押金已移到租赁信息表单
         document.getElementById('annualInspectionDate').value = vehicle.annualInspectionDate || '';
         document.getElementById('managementFeeDate').value = vehicle.managementFeeDate || '';
         document.getElementById('formTitle').textContent = '编辑车辆信息';
@@ -1238,7 +1237,7 @@ const Forms = {
             carModel: document.getElementById('carModel').value.trim(),
             ownerName: document.getElementById('ownerName').value.trim(),
             ownerPhone: document.getElementById('ownerPhone').value.trim(),
-            driverDeposit: parseFloat(document.getElementById('driverDeposit').value) || 0,
+            // 押金已移到租赁信息
             annualInspectionDate: document.getElementById('annualInspectionDate').value || '',
             managementFeeDate: document.getElementById('managementFeeDate').value || '',
         };
@@ -1592,7 +1591,7 @@ const Render = {
                     </div>
                     <div class="info-cell">
                         <div class="info-cell-label">师傅押金（元）</div>
-                        <div class="info-cell-value">¥ ${Number(v.driverDeposit || 0).toLocaleString()}</div>
+                        <div class="info-cell-value">¥ ${Number((r.driverDeposit ?? v.driverDeposit) || 0).toLocaleString()}</div>
                     </div>
                     <div class="info-cell">
                         <div class="info-cell-label">租赁期限（月）</div>
@@ -1779,7 +1778,7 @@ const Render = {
                 </div>
                 <div class="form-item">
                     <label class="form-label">租赁开始日期 <span class="required">*</span></label>
-                    <input type="date" id="r_startDate" class="form-input" value="${r.startDate || DateUtils.todayISO()}">
+                    <input type="date" id="r_startDate" class="form-input" value="${r.startDate || DateUtils.todayISO()}" onchange="Render.autoCalcNextPayDate()">
                 </div>
                 <div class="form-item">
                     <label class="form-label">月租金（元） <span class="required">*</span></label>
@@ -1787,11 +1786,16 @@ const Render = {
                 </div>
                 <div class="form-item">
                     <label class="form-label">租赁期限（月）</label>
-                    <input type="number" id="r_rentalTermMonths" class="form-input" value="${r.rentalTermMonths || ''}" placeholder="如：12">
+                    <input type="number" id="r_rentalTermMonths" class="form-input" value="${r.rentalTermMonths || ''}" placeholder="如：12" onchange="Render.autoCalcNextPayDate()">
+                </div>
+                <div class="form-item">
+                    <label class="form-label">师傅押金（元）</label>
+                    <input type="number" id="r_driverDeposit" class="form-input" value="${r.driverDeposit || 0}" placeholder="如：5000">
                 </div>
                 <div class="form-item">
                     <label class="form-label">下次支付日期 <span class="required">*</span></label>
-                    <input type="date" id="r_nextPayDate" class="form-input" value="${r.nextPayDate || DateUtils.addMonths(DateUtils.todayISO(), 1)}">
+                    <input type="date" id="r_nextPayDate" class="form-input" value="${r.nextPayDate || DateUtils.addMonths(DateUtils.todayISO(), 1)}" onchange="Render.markNextPayDateManual()" oninput="Render.markNextPayDateManual()">
+                    <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">💡 填写租赁开始日期后自动填充，可手动调整</div>
                 </div>
             </div>
             <div class="form-actions">
@@ -1801,6 +1805,30 @@ const Render = {
         `;
         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
     },
+    // 自动计算下次支付日期（开始日期 + 租赁期限月数）
+    autoCalcNextPayDate() {
+        const startDateEl = document.getElementById('r_startDate');
+        const nextPayDateEl = document.getElementById('r_nextPayDate');
+        const termEl = document.getElementById('r_rentalTermMonths');
+        if (!startDateEl || !nextPayDateEl) return;
+        const startDate = startDateEl.value;
+        if (!startDate) return;
+        // 如果用户还没手动修改过，就自动同步
+        if (!nextPayDateEl.value || nextPayDateEl.dataset.auto === '1') {
+            // 默认顺延 1 个月（次月同日）；如果填了租赁期限，则按期限顺延
+            let months = 1;
+            if (termEl && termEl.value && parseInt(termEl.value) > 0) {
+                months = parseInt(termEl.value);
+            }
+            nextPayDateEl.value = DateUtils.addMonths(startDate, months);
+            nextPayDateEl.dataset.auto = '1';
+        }
+    },
+    // 标记用户手动修改了下次支付日期
+    markNextPayDateManual() {
+        const el = document.getElementById('r_nextPayDate');
+        if (el) el.dataset.auto = '0';
+    },
     saveRental(id) {
         if (!AdminAuth.requireWrite('保存租赁信息')) return;
         const payload = {
@@ -1809,6 +1837,7 @@ const Render = {
             startDate: document.getElementById('r_startDate').value,
             monthlyRent: parseFloat(document.getElementById('r_monthlyRent').value) || 0,
             rentalTermMonths: parseFloat(document.getElementById('r_rentalTermMonths').value) || 0,
+            driverDeposit: parseFloat(document.getElementById('r_driverDeposit').value) || 0,
             nextPayDate: document.getElementById('r_nextPayDate').value
         };
         if (!payload.driverName || !payload.driverPhone || !payload.startDate || !payload.nextPayDate) {
@@ -2071,7 +2100,7 @@ const Render = {
                 const model = v.carModel.trim();
                 carModelCounts[model] = (carModelCounts[model] || 0) + 1;
             }
-            driverDepositTotal += (parseFloat(v.driverDeposit) || 0);
+            driverDepositTotal += (parseFloat(v.rental?.driverDeposit ?? v.driverDeposit) || 0);
         });
 
         // Overview Cards

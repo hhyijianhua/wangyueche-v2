@@ -1213,11 +1213,17 @@ const Forms = {
         };
     },
     resetVehicleForm() {
-        document.getElementById('vehicleForm').reset();
+        // 1. 隐藏的车辆ID清空（关键：确保是新增而不是编辑）
         document.getElementById('vehicleId').value = '';
-        document.getElementById('annualInspectionDate').value = '';
-        document.getElementById('managementFeeDate').value = '';
+        // 2. 清空所有可见输入字段（手动清空，比 reset() 更可靠）
+        const fieldIds = ['plateNumber', 'carModel', 'ownerName', 'ownerPhone', 'annualInspectionDate', 'managementFeeDate'];
+        fieldIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        // 3. 修改标题为"添加车辆"
         document.getElementById('formTitle').textContent = '添加车辆';
+        console.log('[Forms] 表单已重置为新增模式');
     },
     fillVehicleForm(vehicle) {
         document.getElementById('vehicleId').value = vehicle.id;

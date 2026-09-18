@@ -1,0 +1,15 @@
+[build]
+  publish = "."
+
+# 简单的静态文件部署，发布根目录就是当前目录
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# 添加安全头
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"

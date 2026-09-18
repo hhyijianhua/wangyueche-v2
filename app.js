@@ -1166,7 +1166,10 @@ const Navigation = {
                 }
             };
         });
-        document.getElementById('btnGotoAdd').onclick = () => this.switchView('add-vehicle');
+        document.getElementById('btnGotoAdd').onclick = () => {
+            Forms.resetVehicleForm();
+            this.switchView('add-vehicle');
+        };
         document.getElementById('btnCancelForm').onclick = () => this.switchView('vehicles');
         document.getElementById('btnBack').onclick = () => this.switchView('vehicles');
         document.getElementById('searchInput').oninput = (e) => {
@@ -1174,7 +1177,7 @@ const Navigation = {
             if (this.currentView === 'vehicles') Render.vehicleList();
         };
     },
-    switchView(view, vehicleId = null) {
+    switchView(view, vehicleId = null, options = {}) {
         this.currentView = view;
         this.currentVehicleId = vehicleId;
         document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -1190,9 +1193,13 @@ const Navigation = {
         };
         const targetId = viewMap[view] || 'view-vehicles';
         document.getElementById(targetId).classList.add('active-view');
-        Forms.resetVehicleForm();
+        // 只有显式要求时才重置表单（防止编辑时被清空）
+        if (options.resetForm) Forms.resetVehicleForm();
         if (view === 'dashboard') Render.dashboard();
         else if (view === 'vehicles') Render.vehicleList();
+        else if (view === 'add-vehicle') {
+            // add-vehicle 页面由调用方负责填充或重置
+        }
         else if (view === 'detail' && vehicleId) Render.vehicleDetail(vehicleId);
         else if (view === 'statistics') Render.statistics();
     }

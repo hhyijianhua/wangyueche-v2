@@ -1086,6 +1086,33 @@ const DateUtils = {
         const d = this.parse(dateStr) || this.today();
         d.setMonth(d.getMonth() + months);
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    },
+    /**
+     * 根据起租日计算下次租金到期日（按"日"号对齐）
+     * 规则：下次到期日 = 收款日之后（含当天）的、月份最近的、日期 = 起租日"日"号 的那天
+     * @param {string} startDate 起租日 (YYYY-MM-DD)
+     * @param {string} payDate 收款日 (YYYY-MM-DD)
+     * @returns {string} 下次到期日 (YYYY-MM-DD)
+     */
+    getNextPayDateByStartDate(startDate, payDate) {
+        const start = this.parse(startDate);
+        const pay = this.parse(payDate) || this.today();
+        if (!start) return this.addMonths(payDate || this.todayISO(), 1);
+        const day = start.getDate(); // 起租日"日"号，比如 18/31
+        let year = pay.getFullYear(), month = pay.getMonth();
+        // 先尝试当月，但月份没有 day 那一天时取最后一天（如 1-31 起租，2月只有 28 天）
+        const lastDayOfMonth = (y, m) => new Date(y, m + 1, 0).getDate();
+        const capDay = Math.min(day, lastDayOfMonth(year, month));
+        const cand = new Date(year, month, capDay);
+        if (cand < pay) {
+            // 当月已过，顺延到下个月
+            month += 1;
+            if (month > 11) { month = 0; year += 1; }
+            const capDay2 = Math.min(day, lastDayOfMonth(year, month));
+            const cand2 = new Date(year, month, capDay2);
+            return `${cand2.getFullYear()}-${String(cand2.getMonth() + 1).padStart(2, '0')}-${String(cand2.getDate()).padStart(2, '0')}`;
+        }
+        return `${year}-${String(month + 1).padStart(2, '0')}-${String(cand.getDate()).padStart(2, '0')}`;
     }
 };
 
@@ -1953,7 +1980,7 @@ const Render = {
                         <input type="text" id="pay_note" class="form-input" placeholder="如：微信转账 / 现金 / 银行卡">
                     </div>
                     <div style="background:rgba(245,158,11,0.08);padding:10px;border-radius:8px;font-size:13px;color:var(--text-secondary);">
-                        💡 确认后系统将自动把"下次支付日期"顺延 1 个月
+                        💡 确认后系统将自动按"起租日"对齐下次到期日（每月${r.startDate ? DateUtils.parse(r.startDate)?.getDate() : '同'}号）
                     </div>
                 </div>
             `;
@@ -1961,8 +1988,8 @@ const Render = {
             const payDate = document.getElementById('pay_date').value || today;
             const payAmount = parseFloat(document.getElementById('pay_amount').value) || 0;
             const payNote = document.getElementById('pay_note').value.trim();
-            // 自动计算新的下次支付日期（收款日期 + 1个月）
-            const newNextPayDate = DateUtils.addMonths(payDate, 1);
+            // 自动计算新的下次支付日期：基于起租日的"日"号对齐（不是简单 +1 个月）
+            const newNextPayDate = DateUtils.getNextPayDateByStartDate(r.startDate, payDate);
             // 构建收款记录
             const record = {
                 date: payDate,

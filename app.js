@@ -1117,9 +1117,35 @@ const ConfirmDialog = {
             this.hide();
         };
     },
-    show(title, text, onConfirm) {
+    show(title, text, onConfirm, options = {}) {
         document.getElementById('confirmTitle').textContent = title;
-        document.getElementById('confirmText').textContent = text;
+        const textEl = document.getElementById('confirmText');
+        // 支持 HTML 内容（用 options.html 或 options.content）
+        if (options.html !== undefined) {
+            textEl.innerHTML = options.html;
+        } else {
+            textEl.textContent = text;
+        }
+        // 自定义按钮文字
+        if (options.confirmText) {
+            document.getElementById('btnConfirmOk').textContent = options.confirmText;
+        } else {
+            document.getElementById('btnConfirmOk').textContent = '确定';
+        }
+        if (options.cancelText) {
+            document.getElementById('btnConfirmCancel').textContent = options.cancelText;
+        } else {
+            document.getElementById('btnConfirmCancel').textContent = '取消';
+        }
+        // 自定义宽度
+        const modal = document.querySelector('#confirmModal .modal-content');
+        if (modal) {
+            if (options.width) {
+                modal.style.maxWidth = options.width;
+            } else {
+                modal.style.maxWidth = '';
+            }
+        }
         this.callback = onConfirm;
         document.getElementById('confirmModal').classList.add('active');
     },
@@ -1568,6 +1594,24 @@ const Render = {
         }
         const dateHL = status?.level === 'danger' ? 'highlight-danger' : status?.level === 'warning' ? 'highlight-warning' : '';
         const daysBadge = status && status.level !== 'normal' ? `<span class="days-badge days-${status.level}">${status.label}</span>` : '';
+        const paymentHistory = r.paidHistory || [];
+        const paymentHistoryHTML = paymentHistory.length ? `
+            <div class="info-cell" style="grid-column: span 2;">
+                <div class="info-cell-label">收款历史（最近${Math.min(paymentHistory.length, 5)}次）</div>
+                <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px;">
+                    ${paymentHistory.slice(-5).reverse().map(p => `
+                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 10px;background:rgba(16,185,129,0.08);border-radius:6px;">
+                            <span style="color:var(--text-secondary);">📅 ${DateUtils.format(p.date)}${p.note ? ` · <span style="color:var(--text-tertiary);">${p.note}</span>` : ''}</span>
+                            <span style="color:#10b981;font-weight:600;">¥ ${Number(p.amount || 0).toLocaleString()}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>` : '';
+        const lastPaidInfo = r.lastPaidDate ? `
+            <div class="info-cell" style="grid-column: span 2;">
+                <div class="info-cell-label">上次收款日期</div>
+                <div class="info-cell-value" style="color:#10b981;">✅ ${DateUtils.format(r.lastPaidDate)}</div>
+            </div>` : '';
         return `
             <div class="detail-card ${cardClass}">
                 <div class="detail-card-header">
@@ -1607,6 +1651,14 @@ const Render = {
                         <div class="info-cell-label">下次支付租金日期 ${daysBadge}</div>
                         <div class="info-cell-value ${dateHL}">${DateUtils.format(r.nextPayDate)}</div>
                     </div>
+                    ${lastPaidInfo}
+                    ${paymentHistoryHTML}
+                </div>
+                <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+                    <button class="primary-btn write-only" style="background:linear-gradient(135deg,#10b981,#059669);border:none;" onclick="Render.markRentPaid('${v.id}')">
+                        💰 已收到本月租金
+                    </button>
+                    ${paymentHistory.length ? `<button class="secondary-btn write-only" onclick="Render.showPaymentHistory('${v.id}')">📜 查看全部收款记录（${paymentHistory.length}）</button>` : ''}
                 </div>
                 <div class="inline-form" id="rentalFormCard" style="display:none; margin-top:20px;"></div>
             </div>
@@ -1865,6 +1917,107 @@ const Render = {
             Toast.show('已完成续租，下次支付日期 +1 个月');
             this.vehicleDetail(id);
         });
+    },
+    // 标记已收到本月租金，自动顺延下次支付日期
+    markRentPaid(id) {
+        if (!AdminAuth.requireWrite('记录租金收款')) return;
+        const v = AppData.getVehicleById(id);
+        if (!v || !v.rental) {
+            Toast.show('请先添加租赁信息', 'warning');
+            return;
+        }
+        const r = v.rental;
+        const today = DateUtils.todayISO();
+        const defaultAmount = r.monthlyRent || 0;
+        // 弹出收款确认框
+        const content = `
+                <div style="text-align:left;">
+                    <div style="margin-bottom:14px;padding:12px;background:rgba(16,185,129,0.08);border-radius:8px;">
+                        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px;">车辆</div>
+                        <div style="font-weight:600;color:var(--text-primary);">${v.plateNumber} · ${r.driverName || '司机'}</div>
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <div style="font-size:13px;color:var(--text-secondary);">当前下次支付日期</div>
+                        <div style="font-size:15px;font-weight:600;color:var(--warning-text);">${DateUtils.format(r.nextPayDate)}</div>
+                    </div>
+                    <div class="form-item" style="margin-bottom:12px;">
+                        <label class="form-label">本次收款日期</label>
+                        <input type="date" id="pay_date" class="form-input" value="${today}">
+                    </div>
+                    <div class="form-item" style="margin-bottom:12px;">
+                        <label class="form-label">收款金额（元）</label>
+                        <input type="number" id="pay_amount" class="form-input" value="${defaultAmount}" placeholder="如: 5000">
+                    </div>
+                    <div class="form-item" style="margin-bottom:12px;">
+                        <label class="form-label">备注（可选）</label>
+                        <input type="text" id="pay_note" class="form-input" placeholder="如：微信转账 / 现金 / 银行卡">
+                    </div>
+                    <div style="background:rgba(245,158,11,0.08);padding:10px;border-radius:8px;font-size:13px;color:var(--text-secondary);">
+                        💡 确认后系统将自动把"下次支付日期"顺延 1 个月
+                    </div>
+                </div>
+            `;
+        ConfirmDialog.show('💰 确认已收到本月租金', '', () => {
+            const payDate = document.getElementById('pay_date').value || today;
+            const payAmount = parseFloat(document.getElementById('pay_amount').value) || 0;
+            const payNote = document.getElementById('pay_note').value.trim();
+            // 自动计算新的下次支付日期（收款日期 + 1个月）
+            const newNextPayDate = DateUtils.addMonths(payDate, 1);
+            // 构建收款记录
+            const record = {
+                date: payDate,
+                amount: payAmount,
+                note: payNote,
+                timestamp: new Date().toISOString()
+            };
+            const paidHistory = Array.isArray(r.paidHistory) ? [...r.paidHistory, record] : [record];
+            const updated = {
+                ...r,
+                nextPayDate: newNextPayDate,
+                lastPaidDate: payDate,
+                paidHistory: paidHistory
+            };
+            AppData.updateVehicle(id, { rental: updated });
+            Toast.show(`✅ 已记录收款 ¥${payAmount.toLocaleString()}，下次支付日期：${DateUtils.format(newNextPayDate)}`);
+            this.vehicleDetail(id);
+        }, { html: content, width: '480px' });
+    },
+    // 显示完整收款历史
+    showPaymentHistory(id) {
+        if (!AdminAuth.requireWrite('查看收款记录')) return;
+        const v = AppData.getVehicleById(id);
+        if (!v || !v.rental) return;
+        const history = v.rental.paidHistory || [];
+        if (!history.length) {
+            Toast.show('暂无收款记录', 'warning');
+            return;
+        }
+        const totalAmount = history.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+        const content = `
+                <div style="text-align:left;">
+                    <div style="margin-bottom:14px;padding:12px;background:rgba(16,185,129,0.08);border-radius:8px;">
+                        <div style="font-size:13px;color:var(--text-secondary);">累计收款</div>
+                        <div style="font-size:24px;font-weight:600;color:#10b981;">¥ ${totalAmount.toLocaleString()}</div>
+                        <div style="font-size:12px;color:var(--text-tertiary);margin-top:4px;">共 ${history.length} 次记录</div>
+                    </div>
+                    <div style="max-height:50vh;overflow-y:auto;">
+                        ${history.slice().reverse().map((p, idx) => `
+                            <div style="padding:12px;background:var(--honeycomb-bg);border-radius:8px;margin-bottom:8px;border-left:3px solid #10b981;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
+                                    <div>
+                                        <div style="font-weight:600;color:var(--text-primary);">第 ${history.length - idx} 次 · ${DateUtils.format(p.date)}</div>
+                                        ${p.note ? `<div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">📝 ${p.note}</div>` : ''}
+                                    </div>
+                                    <div style="font-size:16px;font-weight:600;color:#10b981;">¥ ${Number(p.amount || 0).toLocaleString()}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        ConfirmDialog.show(`📜 ${v.plateNumber} 收款历史`, '', () => {
+            // 关闭
+        }, { html: content, width: '500px', confirmText: '关闭', cancelText: '关闭' });
     },
     deleteRental(id) {
         if (!AdminAuth.requireWrite('删除租赁信息')) return;
